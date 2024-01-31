@@ -45,3 +45,15 @@ from
     filtre_methode
         join filtre on filtre.id_filte = filtre_methode.id_filtre
 where nom = 'meilleur' and param = 'prix';
+
+select
+    produit.nom,
+    m.nom,
+    c.nom,
+    prix,
+    qualite,
+    ROUND(qualite/prix, 2) as rapport
+from produit
+         join marque m on produit.id_marque = m.id_marque
+         join categorie c on m.id_categorie = c.id_categorie
+order by prix asc;

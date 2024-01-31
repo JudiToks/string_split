@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
-@WebServlet(name = "indexServlet", value = "")
+@WebServlet(name = "indexServlet", value = "/index-servlet")
 public class IndexServlet extends HttpServlet
 {
     public void processRequest(HttpServletRequest request, HttpServletResponse response)
