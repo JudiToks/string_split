@@ -38,3 +38,10 @@ select
 from produit
     join marque m on produit.id_marque = m.id_marque
     join categorie c on m.id_categorie = c.id_categorie;
+
+select
+    ordre
+from
+    filtre_methode
+        join filtre on filtre.id_filte = filtre_methode.id_filtre
+where nom = 'meilleur' and param = 'prix';

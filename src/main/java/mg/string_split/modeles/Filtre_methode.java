@@ -60,7 +60,7 @@ public class Filtre_methode
     {
         boolean isOuvert = false;
         List<Filtre_methode> valiny = new ArrayList<>();
-        String query = "select id_filtre_methode, description, ordre, nom, param from filtre_methode join filtre on filtre.id_filte = filtre_methode.id_filtre;";
+        String query = "select id_filtre_methode, description, ordre, nom, param from filtre_methode join filtre on filtre.id_filte = filtre_methode.id_filtre order by id_filtre_methode;";
         try
         {
             if (connection == null)
@@ -90,6 +90,44 @@ public class Filtre_methode
         catch (Exception e)
         {
             System.out.println("Filtre getAllFiltre issues");
+            e.printStackTrace();
+        }
+        return valiny;
+    }
+
+    public static String getOrdre(Connection connection, String filtre, String param)
+    {
+        boolean isOuvert = false;
+        String valiny = "";
+        String query = "select\n" +
+                "    ordre\n" +
+                "from\n" +
+                "    filtre_methode\n" +
+                "        join filtre on filtre.id_filte = filtre_methode.id_filtre\n" +
+                "where nom = '"+filtre+"' and param = '"+param+"';";
+        try
+        {
+            if (connection == null)
+            {
+                connection = Connect.connectToPostgre();
+                isOuvert = true;
+            }
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next())
+            {
+                valiny = resultSet.getString(1);
+            }
+            resultSet.close();
+            statement.close();
+            if (isOuvert)
+            {
+                connection.close();
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Filtre getOrdre issues");
             e.printStackTrace();
         }
         return valiny;

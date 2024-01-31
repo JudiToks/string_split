@@ -24,7 +24,6 @@ public class TraitementServlet extends HttpServlet
             Connection connection = Connect.connectToPostgre();
             String search = request.getParameter("search");
             System.out.println("search string : "+search);
-            String[] paramtres = {"prix", "qualite"};
             List<Filtre_methode> listFiltre = Filtre_methode.getAllFiltre(connection);
             List<Categorie> listCategorie = Categorie.getAllCategorie(connection);
             StringBuilder sqlBuilder = new StringBuilder("select\n" +
@@ -32,38 +31,39 @@ public class TraitementServlet extends HttpServlet
                     "    m.nom,\n" +
                     "    c.nom,\n" +
                     "    prix,\n" +
-                    "    qualite\n" +
+                    "    qualite,\n" +
+                    "    (qualite/prix) as rapport\n" +
                     "from produit\n" +
                     "    join marque m on produit.id_marque = m.id_marque\n" +
                     "    join categorie c on m.id_categorie = c.id_categorie\n" +
-                    "where c.nom = ");
+                    "where ");
             for (int k = 0; k < listCategorie.size(); k++)
             {
-                if (search.contains(listCategorie.get(k).getNom()))
+                for (int i = 0; i < listFiltre.size(); i++)
                 {
-                    sqlBuilder.append("'"+listCategorie.get(k).getNom()+"' ");
-                    for (int i = 0; i < listFiltre.size(); i++)
+                    if (search.contains(listCategorie.get(k).getNom()) && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
                     {
-                        if (search.contains(listFiltre.get(i).getFilre()))
+                        if (search.contains("rapport"))
                         {
+                            sqlBuilder.append("c.nom = '"+listCategorie.get(k).getNom()+"' ");
                             sqlBuilder.append(listFiltre.get(i).getDescription()+" ");
-                            for (int j = 0; j < paramtres.length; j++)
-                            {
-                                if (search.contains(paramtres[j]))
-                                {
-                                    sqlBuilder.append(paramtres[j]+" ");
-                                    if (search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
-                                    {
-                                        sqlBuilder.append(listFiltre.get(i).getOrdre()+";");
-                                    }
-                                }
-                            }
+                            sqlBuilder.append("rapport ");
+                            sqlBuilder.append(listFiltre.get(i).getOrdre()+";");
+                        }
+                        else
+                        {
+                            System.out.println("filtre : "+listFiltre.get(i).getFilre()+" | parametre : "+listFiltre.get(i).getParam()+" | order : "+listFiltre.get(i).getOrdre());
+                            sqlBuilder.append("c.nom = '"+listCategorie.get(k).getNom()+"' ");
+                            sqlBuilder.append(listFiltre.get(i).getDescription()+" ");
+                            sqlBuilder.append(listFiltre.get(i).getParam()+" ");
+                            sqlBuilder.append(listFiltre.get(i).getOrdre()+";");
                         }
                     }
                 }
             }
-            String[] sqlTab = sqlBuilder.toString().split(";");
-            String sql = sqlTab[0]+";";
+            String[] sqlTabWhere = sqlBuilder.toString().split("where");
+            String[] sqlTab = sqlTabWhere[1].split(";");
+            String sql = sqlTabWhere[0]+"where "+sqlTab[0]+";";
             System.out.println("sql : "+sql);
             connection.close();
 
@@ -77,12 +77,12 @@ public class TraitementServlet extends HttpServlet
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         processRequest(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         processRequest(req, resp);
     }
 }
