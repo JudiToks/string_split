@@ -64,6 +64,42 @@ public class Categorie
         return valiny;
     }
 
+    public static List<Categorie> getAllCategorieByCateg(Connection connection, String categ)
+    {
+        boolean isOuvert = false;
+        List<Categorie> valiny = new ArrayList<>();
+        String query = "select * from categorie where nom = '"+categ+"';";
+        try
+        {
+            if (connection == null)
+            {
+                connection = Connect.connectToPostgre();
+                isOuvert = true;
+            }
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next())
+            {
+                Categorie temp = new Categorie();
+                temp.setId_categorie(resultSet.getInt("id_categorie"));
+                temp.setNom(resultSet.getString("nom"));
+                valiny.add(temp);
+            }
+            resultSet.close();
+            statement.close();
+            if (isOuvert)
+            {
+                connection.close();
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Categorie getAllCategorie issues");
+            e.printStackTrace();
+        }
+        return valiny;
+    }
+
     public static Categorie getCategorieById(Connection connection, int id_categorie)
     {
         boolean isOuvert = false;

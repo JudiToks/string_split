@@ -102,7 +102,17 @@ public class Produit
         try
         {
             List<Filtre_methode> listFiltre = Filtre_methode.getAllFiltre(connection);
-            List<Categorie> listCategorie = Categorie.getAllCategorie(connection);
+            List<Categorie> temp = Categorie.getAllCategorie(connection);
+            String categ = "";
+            for (int i = 0; i < temp.size(); i++)
+            {
+                if (search.contains(temp.get(i).getNom()))
+                {
+                    categ = temp.get(i).getNom();
+                }
+            }
+            System.out.println(categ);
+            List<Categorie> listCategorie = Categorie.getAllCategorieByCateg(connection, categ);
             StringBuilder sqlBuilder = new StringBuilder("select\n" +
                     "    produit.nom,\n" +
                     "    m.nom,\n" +
@@ -120,6 +130,7 @@ public class Produit
                 {
                     if (!search.contains(listCategorie.get(k).getNom()) && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
                     {
+                        System.out.println("okokok");
                         if (search.contains("rapport"))
                         {
                             sqlBuilder.append(listFiltre.get(i).getDescription()+" ");
@@ -133,7 +144,7 @@ public class Produit
                             sqlBuilder.append(listFiltre.get(i).getOrdre()+";");
                         }
                     }
-                    if (search.contains(listCategorie.get(k).getNom()) && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
+                    else if (search.contains(listCategorie.get(k).getNom()) && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
                     {
                         sqlBuilder.append("where ");
                         if (search.contains("rapport"))
@@ -153,6 +164,7 @@ public class Produit
                     }
                 }
             }
+            System.out.println(sqlBuilder.toString());
             String sql = "";
             if (sqlBuilder.toString().contains("where"))
             {
