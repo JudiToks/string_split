@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Produit
 {
@@ -124,11 +126,20 @@ public class Produit
                     "    join marque m on produit.id_marque = m.id_marque\n" +
                     "    join categorie c on m.id_categorie = c.id_categorie\n" +
                     "");
+
+            Pattern pattern = Pattern.compile("\\d+");
+            Matcher matcher = pattern.matcher(search);
+            int limit = 0;
+            if (matcher.find()) {
+                String numberString = matcher.group();
+                limit = Integer.parseInt(numberString);
+            }
+
             for (int k = 0; k < listCategorie.size(); k++)
             {
                 for (int i = 0; i < listFiltre.size(); i++)
                 {
-                    if (!search.contains(listCategorie.get(k).getNom()) && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
+                    if (categ == "" && search.contains(listFiltre.get(i).getFilre()) && search.contains(listFiltre.get(i).getParam()))
                     {
                         System.out.println("okokok");
                         if (search.contains("rapport"))
@@ -170,13 +181,18 @@ public class Produit
             {
                 String[] sqlTabWhere = sqlBuilder.toString().split("where");
                 String[] sqlTab = sqlTabWhere[1].split(";");
-                sql = sqlTabWhere[0]+"where "+sqlTab[0]+";";
+                sql = sqlTabWhere[0]+"where "+sqlTab[0];
             }
             else
             {
                 String[] sqlTab = sqlBuilder.toString().split(";");
-                sql = sqlTab[0]+";";
+                sql = sqlTab[0];
             }
+            if (limit > 1)
+            {
+                sql = sql+" limit "+limit;
+            }
+            sql = sql+";";
             System.out.println("sql : "+sql);
             valiny = sql;
         }
